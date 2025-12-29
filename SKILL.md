@@ -1,6 +1,6 @@
 ---
 name: browser-workflow
-description: Execute browser automation tasks (navigate, fill forms, click, login, capture network requests, take screenshots) without loading full MCP tool schemas.
+description: Execute browser automation tasks (navigate, fill forms, click, login, capture network requests, take screenshots).
 version: 2.1.0
 author: Anthropic Agent Skills
 base_dir: ${SKILL_BASE_DIR}
@@ -17,9 +17,9 @@ SKILL_BASE_DIR = <base directory provided when skill is loaded>
 SCRIPT_PATH = ${SKILL_BASE_DIR}\scripts\run_browser_actions.py
 ```
 
-**Example**: If skill is loaded from `C:\Users\Tam\.claude\skills\browser-workflow`, then:
-- `SKILL_BASE_DIR` = `C:\Users\Tam\.claude\skills\browser-workflow`
-- `SCRIPT_PATH` = `C:\Users\Tam\.claude\skills\browser-workflow\scripts\run_browser_actions.py`
+**Example**: If skill is loaded from `path\to\file\.claude\skills\browser-workflow`, then:
+- `SKILL_BASE_DIR` = `path\to\file\.claude\skills\browser-workflow`
+- `SCRIPT_PATH` = `path\to\file\.claude\skills\browser-workflow\scripts\run_browser_actions.py`
 
 ---
 
@@ -136,7 +136,7 @@ python "${SKILL_BASE_DIR}\scripts\run_browser_actions.py" "{\"steps\": \"[{\\\"a
 
 When you read this skill using `openskills read browser-workflow`, the output includes:
 ```
-Base directory: C:\Users\Tam\.claude\skills\browser-workflow
+Base directory: path\to\file\.claude\skills\browser-workflow
 ```
 
 Use this path as `SKILL_BASE_DIR`.
@@ -163,7 +163,7 @@ Replace placeholders:
 
 Use `run_cmd` tool:
 ```cmd
-python "C:\Users\Tam\.claude\skills\browser-workflow\scripts\run_browser_actions.py" "{\"steps\": \"[...]\"}"
+python "path\to\file\.claude\skills\browser-workflow\scripts\run_browser_actions.py" "{\"steps\": \"[...]\"}"
 ```
 
 ### Step 5: Parse Output

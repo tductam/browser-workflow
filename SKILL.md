@@ -1,32 +1,48 @@
 ---
 name: browser-workflow
 description: Execute browser automation tasks (navigate, fill forms, click, login, capture network requests, take screenshots) without loading full MCP tool schemas.
-version: 2.0.0
+version: 2.1.0
 author: Anthropic Agent Skills
+base_dir: ${SKILL_BASE_DIR}
 ---
 
 # Browser Workflow Skill
 
-## ⚠️ CRITICAL: HOW TO EXECUTE (READ THIS FIRST!)
+## 📁 Path Configuration
 
-**DO NOT just create JSON steps and show to user. You MUST run the Python script!**
+**SKILL_BASE_DIR**: The base directory where this skill is installed. When reading this skill, the system provides the base directory. Use this variable in commands:
 
-### EXACT Command to Run:
+```
+SKILL_BASE_DIR = <base directory provided when skill is loaded>
+SCRIPT_PATH = ${SKILL_BASE_DIR}\scripts\run_browser_actions.py
+```
+
+**Example**: If skill is loaded from `C:\Users\Tam\.claude\skills\browser-workflow`, then:
+- `SKILL_BASE_DIR` = `C:\Users\Tam\.claude\skills\browser-workflow`
+- `SCRIPT_PATH` = `C:\Users\Tam\.claude\skills\browser-workflow\scripts\run_browser_actions.py`
+
+---
+
+## ⚠️ CRITICAL: HOW TO EXECUTE
+
+**DO NOT just create JSON steps. You MUST run the Python script!**
+
+### Command Template:
 
 ```cmd
-python "C:\Users\Tam\.claude\skills\browser-workflow\scripts\run_browser_actions.py" "{\"steps\": \"<ESCAPED_JSON_ARRAY>\"}"
+python "${SKILL_BASE_DIR}\scripts\run_browser_actions.py" "{\"steps\": \"<ESCAPED_JSON_ARRAY>\"}"
 ```
 
 ### Example - Navigate to YouTube and capture all requests:
 
 ```cmd
-python "C:\Users\Tam\.claude\skills\browser-workflow\scripts\run_browser_actions.py" "{\"steps\": \"[{\\\"action\\\":\\\"capture_requests\\\",\\\"params\\\":{}},{\\\"action\\\":\\\"navigate\\\",\\\"params\\\":{\\\"url\\\":\\\"https://youtube.com\\\"}},{\\\"action\\\":\\\"wait\\\",\\\"params\\\":{\\\"timeout\\\":5000}},{\\\"action\\\":\\\"capture_requests\\\",\\\"params\\\":{\\\"stop\\\":true}}]\"}"
+python "${SKILL_BASE_DIR}\scripts\run_browser_actions.py" "{\"steps\": \"[{\\\"action\\\":\\\"capture_requests\\\",\\\"params\\\":{}},{\\\"action\\\":\\\"navigate\\\",\\\"params\\\":{\\\"url\\\":\\\"https://youtube.com\\\"}},{\\\"action\\\":\\\"wait\\\",\\\"params\\\":{\\\"timeout\\\":5000}},{\\\"action\\\":\\\"capture_requests\\\",\\\"params\\\":{\\\"stop\\\":true}}]\"}"
 ```
 
 ### IMPORTANT RULES:
-1. **capture_requests must be called TWICE**: First with `{}` to START capturing, then with `{"stop":true}` to GET results
-2. **Escape JSON properly**: Use `\\\"` for quotes inside the steps string
-3. **Use CMD/PowerShell**: Run via `run_cmd` tool with the exact command above
+1. Replace `${SKILL_BASE_DIR}` with the actual base directory path provided when skill is loaded
+2. **capture_requests must be called TWICE**: First with `{}` to START, then with `{"stop":true}` to GET results
+3. **Escape JSON properly**: Use `\\\"` for quotes inside the steps string
 
 ---
 
@@ -52,39 +68,82 @@ python "C:\Users\Tam\.claude\skills\browser-workflow\scripts\run_browser_actions
 
 ---
 
-## Common Workflows (COPY-PASTE READY)
+## Common Workflows
 
 ### 1. Navigate and Capture ALL Network Requests
 
+**Steps JSON:**
+```json
+[
+  {"action": "capture_requests", "params": {}},
+  {"action": "navigate", "params": {"url": "https://youtube.com"}},
+  {"action": "wait", "params": {"timeout": 5000}},
+  {"action": "capture_requests", "params": {"stop": true}}
+]
+```
+
+**Command:**
 ```cmd
-python "C:\Users\Tam\.claude\skills\browser-workflow\scripts\run_browser_actions.py" "{\"steps\": \"[{\\\"action\\\":\\\"capture_requests\\\",\\\"params\\\":{}},{\\\"action\\\":\\\"navigate\\\",\\\"params\\\":{\\\"url\\\":\\\"https://youtube.com\\\"}},{\\\"action\\\":\\\"wait\\\",\\\"params\\\":{\\\"timeout\\\":5000}},{\\\"action\\\":\\\"capture_requests\\\",\\\"params\\\":{\\\"stop\\\":true}}]\"}"
+python "${SKILL_BASE_DIR}\scripts\run_browser_actions.py" "{\"steps\": \"[{\\\"action\\\":\\\"capture_requests\\\",\\\"params\\\":{}},{\\\"action\\\":\\\"navigate\\\",\\\"params\\\":{\\\"url\\\":\\\"https://youtube.com\\\"}},{\\\"action\\\":\\\"wait\\\",\\\"params\\\":{\\\"timeout\\\":5000}},{\\\"action\\\":\\\"capture_requests\\\",\\\"params\\\":{\\\"stop\\\":true}}]\"}"
 ```
 
 ### 2. Login to a Website
 
-```cmd
-python "C:\Users\Tam\.claude\skills\browser-workflow\scripts\run_browser_actions.py" "{\"steps\": \"[{\\\"action\\\":\\\"capture_requests\\\",\\\"params\\\":{}},{\\\"action\\\":\\\"navigate\\\",\\\"params\\\":{\\\"url\\\":\\\"https://example.com/login\\\"}},{\\\"action\\\":\\\"wait_for_selector\\\",\\\"params\\\":{\\\"selector\\\":\\\"input[type=email]\\\",\\\"timeout\\\":10000}},{\\\"action\\\":\\\"fill\\\",\\\"params\\\":{\\\"selector\\\":\\\"input[type=email]\\\",\\\"value\\\":\\\"user@example.com\\\"}},{\\\"action\\\":\\\"fill\\\",\\\"params\\\":{\\\"selector\\\":\\\"input[type=password]\\\",\\\"value\\\":\\\"password123\\\"}},{\\\"action\\\":\\\"click\\\",\\\"params\\\":{\\\"selector\\\":\\\"button[type=submit]\\\"}},{\\\"action\\\":\\\"wait\\\",\\\"params\\\":{\\\"timeout\\\":5000}},{\\\"action\\\":\\\"screenshot\\\",\\\"params\\\":{}},{\\\"action\\\":\\\"capture_requests\\\",\\\"params\\\":{\\\"stop\\\":true}}]\"}"
+**Steps JSON:**
+```json
+[
+  {"action": "capture_requests", "params": {}},
+  {"action": "navigate", "params": {"url": "https://example.com/login"}},
+  {"action": "wait_for_selector", "params": {"selector": "input[type=email]", "timeout": 10000}},
+  {"action": "fill", "params": {"selector": "input[type=email]", "value": "EMAIL_HERE"}},
+  {"action": "fill", "params": {"selector": "input[type=password]", "value": "PASSWORD_HERE"}},
+  {"action": "click", "params": {"selector": "button[type=submit]"}},
+  {"action": "wait", "params": {"timeout": 5000}},
+  {"action": "screenshot", "params": {}},
+  {"action": "capture_requests", "params": {"stop": true}}
+]
 ```
 
 ### 3. Take Screenshot of a Page
 
-```cmd
-python "C:\Users\Tam\.claude\skills\browser-workflow\scripts\run_browser_actions.py" "{\"steps\": \"[{\\\"action\\\":\\\"navigate\\\",\\\"params\\\":{\\\"url\\\":\\\"https://example.com\\\"}},{\\\"action\\\":\\\"wait\\\",\\\"params\\\":{\\\"timeout\\\":2000}},{\\\"action\\\":\\\"screenshot\\\",\\\"params\\\":{\\\"full_page\\\":true}}]\"}"
+**Steps JSON:**
+```json
+[
+  {"action": "navigate", "params": {"url": "https://example.com"}},
+  {"action": "wait", "params": {"timeout": 2000}},
+  {"action": "screenshot", "params": {"full_page": true}}
+]
 ```
 
 ### 4. Google Search
 
-```cmd
-python "C:\Users\Tam\.claude\skills\browser-workflow\scripts\run_browser_actions.py" "{\"steps\": \"[{\\\"action\\\":\\\"navigate\\\",\\\"params\\\":{\\\"url\\\":\\\"https://google.com\\\"}},{\\\"action\\\":\\\"fill\\\",\\\"params\\\":{\\\"selector\\\":\\\"textarea[name=q]\\\",\\\"value\\\":\\\"Anthropic Claude\\\"}},{\\\"action\\\":\\\"press\\\",\\\"params\\\":{\\\"key\\\":\\\"Enter\\\"}},{\\\"action\\\":\\\"wait\\\",\\\"params\\\":{\\\"timeout\\\":3000}},{\\\"action\\\":\\\"screenshot\\\",\\\"params\\\":{}}]\"}"
+**Steps JSON:**
+```json
+[
+  {"action": "navigate", "params": {"url": "https://google.com"}},
+  {"action": "fill", "params": {"selector": "textarea[name=q]", "value": "SEARCH_QUERY"}},
+  {"action": "press", "params": {"key": "Enter"}},
+  {"action": "wait", "params": {"timeout": 3000}},
+  {"action": "screenshot", "params": {}}
+]
 ```
 
 ---
 
 ## Step-by-Step Instructions
 
-### Step 1: Parse User Request → JSON Steps
+### Step 1: Get SKILL_BASE_DIR
 
-Convert user's intent to JSON array. **IMPORTANT**: For network capture, ALWAYS use this pattern:
+When you read this skill using `openskills read browser-workflow`, the output includes:
+```
+Base directory: C:\Users\Tam\.claude\skills\browser-workflow
+```
+
+Use this path as `SKILL_BASE_DIR`.
+
+### Step 2: Parse User Request → JSON Steps
+
+Convert user's intent to JSON array. For network capture, use this pattern:
 ```json
 [
   {"action": "capture_requests", "params": {}},           // START capture
@@ -94,35 +153,26 @@ Convert user's intent to JSON array. **IMPORTANT**: For network capture, ALWAYS 
 ]
 ```
 
-### Step 2: Escape JSON for Command Line
+### Step 3: Build Command
 
-Replace `"` with `\\\"` inside the steps string:
-- Original: `[{"action":"navigate"}]`
-- Escaped: `[{\\\"action\\\":\\\"navigate\\\"}]`
+Replace placeholders:
+1. `${SKILL_BASE_DIR}` → actual path from Step 1
+2. `<ESCAPED_JSON_ARRAY>` → JSON with quotes escaped as `\\\"`
 
-### Step 3: Run the Command
+### Step 4: Run Command
 
-Use your `run_cmd` tool with:
+Use `run_cmd` tool:
+```cmd
+python "C:\Users\Tam\.claude\skills\browser-workflow\scripts\run_browser_actions.py" "{\"steps\": \"[...]\"}"
 ```
-python "C:\Users\Tam\.claude\skills\browser-workflow\scripts\run_browser_actions.py" "{\"steps\": \"<ESCAPED_STEPS>\"}"
-```
 
-### Step 4: Parse Output
+### Step 5: Parse Output
 
-The script returns JSON:
 ```json
 {
   "step_0_capture_requests": {"status": "success", "capturing": true},
-  "step_1_navigate": {"status": "success", "url": "https://youtube.com", "title": "YouTube"},
-  "step_3_capture_requests": {
-    "status": "success",
-    "requests": [
-      {"url": "https://www.youtube.com/", "method": "GET", "status": 200, "resource_type": "document"},
-      {"url": "https://www.youtube.com/s/desktop/...", "method": "GET", "status": 200, "resource_type": "script"}
-    ],
-    "count": 45,
-    "truncated": false
-  }
+  "step_1_navigate": {"status": "success", "url": "...", "title": "..."},
+  "step_3_capture_requests": {"status": "success", "requests": [...], "count": 45}
 }
 ```
 
@@ -130,12 +180,13 @@ The script returns JSON:
 
 ## Selector Guidelines
 
-Use CSS selectors:
-- By ID: `#login-button`
-- By class: `.submit-btn`
-- By attribute: `input[name="email"]`, `button[type="submit"]`
-- By type: `input[type="email"]`, `input[type="password"]`
-- Combine: `form.login input[type="password"]`
+| Type | Syntax | Example |
+|------|--------|---------|
+| By ID | `#id` | `#login-button` |
+| By class | `.class` | `.submit-btn` |
+| By attribute | `[attr=value]` | `input[name="email"]` |
+| By type | `[type=value]` | `input[type="password"]` |
+| Combined | `parent child` | `form.login input[type="email"]` |
 
 ---
 
@@ -144,7 +195,7 @@ Use CSS selectors:
 | Error | Solution |
 |-------|----------|
 | `Selector not found` | Add `wait_for_selector` before action |
-| `Timeout` | Increase timeout value or check network |
+| `Timeout` | Increase timeout value |
 | `Navigation failed` | Verify URL is correct |
 
 ---

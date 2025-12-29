@@ -6,11 +6,17 @@ Optimized for Claude's code execution environment with minimal token output.
 """
 
 import sys
+import os
 import json
 import base64
 import re
 from typing import Any, Dict, List, Optional
 from playwright.sync_api import sync_playwright, Page, Browser, TimeoutError as PlaywrightTimeout
+
+# Fix Windows Unicode encoding issues
+if sys.platform == 'win32':
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    os.environ['PYTHONIOENCODING'] = 'utf-8'
 
 
 # Configuration
@@ -407,7 +413,8 @@ def main():
         results = workflow.run(steps)
         
         # Output results
-        print(json.dumps(results, ensure_ascii=False))
+        # Use ensure_ascii=True to avoid encoding issues on Windows console
+        print(json.dumps(results, ensure_ascii=True))
         
     except json.JSONDecodeError as e:
         print(json.dumps({

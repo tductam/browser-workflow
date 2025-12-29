@@ -197,16 +197,3 @@ python "path\to\file\.claude\skills\browser-workflow\scripts\run_browser_actions
 | `Selector not found` | Add `wait_for_selector` before action |
 | `Timeout` | Increase timeout value |
 | `Navigation failed` | Verify URL is correct |
-
----
-
-## Mapping from MCP Browser Tools
-
-| MCP Tool | Browser Workflow Action |
-|----------|------------------------|
-| `browser_navigate` | `navigate` |
-| `browser_click` | `click` |
-| `browser_fill` | `fill` |
-| `browser_take_snapshot` | `capture_snapshot` |
-| `browser_list_network_requests` | `capture_requests` with `{"stop": true}` |
-| `browser_screenshot` | `screenshot` |
